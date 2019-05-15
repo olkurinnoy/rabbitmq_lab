@@ -1,28 +1,34 @@
 #!/usr/bin/env python
 import pika
 import sys
+import time
 
 credentials = pika.PlainCredentials('oleg', '123456')
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='node1',credentials=credentials))
+
+
+
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='node1',credentials=credentials))
+
 channel = connection.channel()
+channel.queue_declare(queue='hello2', durable = True)
 
 '''
-channel.queue_declare(queue='hello5', durable = True, arguments = {'x-message-ttl': 50000, 
-'x-max-length' : 2, 'x-overflow' : 'reject-publish'})
+channel.queue_bind(exchange='amq.direct', queue = 'hello7')
 
-channel.queue_declare(queue='hello5', durable = True, arguments = {'x-message-ttl': 50000, 
-'x-max-length' : 2, 'x-overflow' : 'drop-head'})
+ch1 = connection.channel()
+ch1.confirm_delivery()
 
+delay_channel.queue_declare(queue='hello_delay', durable=True,  arguments={
+  'x-message-ttl' : 5000, 
+  'x-dead-letter-exchange' : 'amq.direct',
+  'x-dead-letter-routing-key' : 'hello' 
+})
 '''
+	
+for i in range(10):
+	channel.basic_publish(exchange='', routing_key='hello6', body=str(i))
+	print(" [x] Sent {0}".format(i))
+	#time.sleep(1)
 
-channel.queue_declare(queue='hello2', durable = True) 
-
-
-message = ' '.join(sys.argv[1:])
-channel.basic_publish(exchange='', routing_key='hello2', body=message)
-
-
-print(" [x] Sent {0}".format(message))
 connection.close()
 

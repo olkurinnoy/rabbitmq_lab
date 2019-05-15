@@ -1,6 +1,7 @@
 import pika
 import sys
 import pickle
+import time
 
 credentials = pika.PlainCredentials('oleg', '123456')
 connection = pika.BlockingConnection(
@@ -16,12 +17,13 @@ class human:
 		self.age = age
 		self.name = name
 
-h1 = human(11, 'Oleksii')
-mess = pickle.dumps(h1, protocol = 1)
-
-
-channel.basic_publish(exchange = '', routing_key = 'hello', body = mess)
-print(" [x] Sent ")
+for i in range(10):
+	name = 'Oleksii ' + str(i)
+	h1 = human(11, name)
+	time.sleep(1)
+	mess = pickle.dumps(h1, protocol = 1)
+	channel.basic_publish(exchange = '', routing_key = 'hello', body = mess)
+	print(" [x] Sent {0}".format(name))
 
 connection.close()
 
